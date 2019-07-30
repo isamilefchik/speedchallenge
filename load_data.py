@@ -5,7 +5,9 @@ def parse_speeds():
     filepath = "./data/train.txt"
     with open(filepath) as file:
         raw = file.read()
-    return raw.split("\n")
+    result = list(map(float, raw.split("\n")))
+    result = list(map(round, result))
+    return list(map(int, result))
 
 def get_next_frame(cap, prev_frame):
     _, cur = cap.read()
