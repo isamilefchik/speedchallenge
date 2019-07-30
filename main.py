@@ -16,16 +16,18 @@ def main():
 
     while(1):
         cur_flow, cur_frame = get_next_frame(cap, prev_frame)
-        cv2.imshow('frame2', cur_flow)
+        # cv2.imshow('frame2', cur_flow)
+
+        # k = cv2.waitKey(5)
+        # if k == 27: # ESC key
+        #     break
+
         
-        k = cv2.waitKey(5)
-        if k == 27: # ESC key
-            break
         
         prev_frame = cur_frame
 
     cap.release()
-    cv2.destroyAllWindows()
+    # cv2.destroyAllWindows()
 
 
 

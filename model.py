@@ -5,7 +5,8 @@ class Speed_Classify_Model(nn.Module):
         super(Speed_Classify_Model, self).__init__()
         self.pad1 = nn.ReflectionPad2d((7,7,7,7))
         self.conv1 = nn.Conv2d(3, 64, (15,15))
-        self.subsamp = nn.MaxPool2d((5,5))
+        self.max1 = nn.MaxPool2d((5,5))
+        self.conv2 = nn.Conv2d()
 
 
     def forward(self, x):
@@ -13,4 +14,4 @@ class Speed_Classify_Model(nn.Module):
         return out
 
 def train_model(model, frame):
-
+    print("Hello")
