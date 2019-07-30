@@ -1,4 +1,5 @@
 import cv2
+import sys
 import numpy as np
 
 def parse_speeds():
@@ -10,7 +11,9 @@ def parse_speeds():
     return list(map(int, result))
 
 def get_next_frame(cap, prev_frame):
-    _, cur = cap.read()
+    success, cur = cap.read()
+    if not success:
+        sys.exit()
         
     hsv_flow = np.zeros_like(cur)
     hsv_flow[..., 1] = 255

@@ -33,7 +33,7 @@ class Speed_Classify_Model(nn.Module):
 
         return out
 
-def train_model(model, optimizer, frame, target, yes):
+def train_model(model, optimizer, frame, target):
     model.train()
     loss = nn.BCELoss()
     transform = torchvision.transforms.ToTensor()
@@ -41,9 +41,6 @@ def train_model(model, optimizer, frame, target, yes):
     frame_tensor = torch.unsqueeze(frame_tensor, 0)
     optimizer.zero_grad()
     result = model(frame_tensor)
-
-    if yes:
-        print(result)
 
     target_tensor = np.zeros((90), dtype=np.float32)
     target_tensor[target] = 1.0
