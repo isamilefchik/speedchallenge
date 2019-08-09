@@ -7,8 +7,9 @@ def parse_speeds():
     with open(filepath) as file:
         raw = file.read()
     result = list(map(float, raw.split("\n")))
-    result = list(map(round, result))
-    return list(map(int, result))
+    # result = list(map(round, result))
+    # return list(map(int, result))
+    return result
 
 def get_next_frame(cap, prev_frame):
     success, cur = cap.read()

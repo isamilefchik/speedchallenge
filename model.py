@@ -42,12 +42,21 @@ def train_model(model, optimizer, frame, target):
     optimizer.zero_grad()
     result = model(frame_tensor)
 
-    target_tensor = np.zeros((90), dtype=np.float32)
-    target_tensor[target] = 1.0
-    target_tensor = torch.tensor(target_tensor)
+    target_tensor = make_gauss_target(target, 90, 1.0)
 
     train_loss = loss(result, target_tensor)
     train_loss.backward()
     optimizer.step()
 
     return train_loss.sum().item(), result.detach().numpy()
+
+def make_gauss_target(target, n, sig):
+    gauss_target = np.zeros(n)
+    for i in range(n):
+        gauss_target[i] = np.exp(-np.power(i - target, 2.) / (2 * np.power(sig, 2.)))
+    return torch.tensor(gauss_target, dtype=torch.float)
+
+
+
+
+
