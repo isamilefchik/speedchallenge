@@ -95,9 +95,9 @@ def main():
         if simple:
             for i, item in enumerate(results):
                 if i != len(results) - 1:
-                    f.write(str(speed) + "\n")
+                    f.write(str(item) + "\n")
                 else:
-                    f.write(str(speed))
+                    f.write(str(item))
         else:
             if input_set == "train": 
                 for i, item in enumerate(results):
