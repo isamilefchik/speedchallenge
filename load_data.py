@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import cv2
 import sys
 import numpy as np
@@ -7,8 +8,6 @@ def parse_speeds():
     with open(filepath) as file:
         raw = file.read()
     result = list(map(float, raw.split("\n")))
-    # result = list(map(round, result))
-    # return list(map(int, result))
     return result
 
 def get_next_frame(cap, prev_frame):
@@ -25,8 +24,58 @@ def get_next_frame(cap, prev_frame):
     mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
 
     hsv_flow[..., 0] = ang*180/np.pi/2
-    hsv_flow[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
+    # hsv_flow[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
+    scale_cap = 80.
+    mag_clips = mag > scale_cap
+    mag[mag_clips] = scale_cap
+    mag = mag * (255. / scale_cap)
+    hsv_flow[..., 2] = mag
 
     rgb_flow = cv2.cvtColor(hsv_flow, cv2.COLOR_HSV2BGR)
     
     return rgb_flow, cur_gray
+
+
+def plot_mag_distribution():
+    cap = cv2.VideoCapture("./data/train.mp4")
+
+    success, prev_frame = cap.read()
+    if not success:
+        sys.exit()
+    prev_frame = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
+    
+    success, cur_frame = cap.read()
+
+    count = 1
+    mags = []
+    while(success):
+        hsv_flow = np.zeros_like(cur_frame)
+        hsv_flow[..., 1] = 255
+
+        cur_gray = cv2.cvtColor(cur_frame, cv2.COLOR_BGR2GRAY)
+
+        flow = cv2.calcOpticalFlowFarneback(prev_frame, cur_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+        mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+
+        # hsv_flow[..., 0] = ang*180/np.pi/2
+        # hsv_flow[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
+
+        # rgb_flow = cv2.cvtColor(hsv_flow, cv2.COLOR_HSV2BGR)
+    
+        mags.append(int(np.max(mag))) 
+
+        print("{0} mags read        ".format(count), end="\r")
+        prev_frame = cur_gray
+        success, cur_frame = cap.read()
+        count += 1
+
+    print("Max max-value: {}     Min max-value: {}".format(np.max(mags), np.min(mags)))
+    plt.style.use("ggplot")
+    plt.hist(mags, bins=np.arange(600, step=5))
+    plt.yscale("log")
+    plt.show()
+
+# plot_mag_distribution()
+
+
+
