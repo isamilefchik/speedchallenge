@@ -1,21 +1,25 @@
 #!/usr/local/bin/python3
 
+import argparse
+import time
+import datetime
 import cv2
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
-import argparse
-import time
-import datetime
 from model import Speed_Classify_Model, train_model
-from load_data import parse_speeds, get_next_frame
+from load_data import parse_speeds
 
 def main():
     parser = argparse.ArgumentParser(description="Speedchallenge Trainer")
-    parser.add_argument("-v", "--visualize", action="store_true", default=False, help="Do live visualization while training.")
-    parser.add_argument("-l", "--load", type=str, default="", help="Path to saved model, if model should be loaded.")
-    parser.add_argument("-s", "--save", type=str, default="", help="Name of model if model should be saved at each epoch.")
-    parser.add_argument("-e", "--epochs", type=int, default=2, help="Number of epochs to train.")
+    parser.add_argument("-v", "--visualize", action="store_true",
+                        default=False, help="Do live visualization while training.")
+    parser.add_argument("-l", "--load", type=str, default="",
+                        help="Path to saved model, if model should be loaded.")
+    parser.add_argument("-s", "--save", type=str, default="",
+                        help="Name of model if model should be saved at each epoch.")
+    parser.add_argument("-e", "--epochs", type=int, default=2,
+                        help="Number of epochs to train.")
 
     args = parser.parse_args()
     live_viz, load_path, model_name, num_epochs = args.visualize, args.load, args.save, args.epochs
@@ -27,7 +31,7 @@ def main():
     ground_truth = parse_speeds()
     model = Speed_Classify_Model()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
-    
+
     mask = cv2.imread("./data/mask.png", 0)
 
     if load_path != "":
@@ -38,7 +42,7 @@ def main():
         epoch_list = range(num_epochs)
 
     for epoch in epoch_list:
-        rand_indices = np.random.permutation(np.arange(1,20400))
+        rand_indices = np.random.permutation(np.arange(1, 20400))
         running_loss = 0
         epoch_size = 8000
         start_time = time.time()
@@ -72,12 +76,12 @@ def main():
             check_time = time.time()
 
             if (round(check_time) - round(refresh_time) >= 1) or count+1 == epoch_size:
-                dt = check_time - start_time
+                delta_t = check_time - start_time
                 remain_dt_indices = (float(epoch_size - (count+1)) / dt_indices) + \
                                     ((epoch_list[-1] - epoch) * (epoch_size / dt_indices))
-                remain_seconds = round(remain_dt_indices * dt)
+                remain_seconds = round(remain_dt_indices * delta_t)
                 est = str(datetime.timedelta(seconds=remain_seconds))
-                
+
                 if count+1 != epoch_size:
                     print_str_1 = "e{0}:{1}/{2} ".format(epoch, count+1, epoch_size)
                     print_str_2 = "True Speed: {0:.2f}   ".format(speed)
@@ -100,7 +104,7 @@ def main():
         if model_name != "":
             save_path = "./model_saves/" + model_name + "_e" + str(epoch) + ".pth"
             torch.save(model.state_dict(), save_path)
-    
+
     if live_viz:
         cv2.destroyAllWindows()
 

@@ -13,7 +13,7 @@ from model import Speed_Classify_Model, train_model
 from load_data import parse_speeds, get_next_frame
 
 def main():
-    parser = argparse.ArgumentParser(description="Speedchallenge tester")
+    parser = argparse.ArgumentParser(description="Speedchallenge inference")
     parser.add_argument("-i", "--input", type=str, default="train", help="Which dataset (\"train\" or \"test\").")
     parser.add_argument("-v", "--visualize", action="store_true", default=False, help="Do live visualization.")
     parser.add_argument("-l", "--load", type=str, default="", help="Path to model.")
