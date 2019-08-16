@@ -1,5 +1,4 @@
 #!/usr/local/bin/python3
-
 import argparse
 import time
 import datetime
@@ -23,9 +22,12 @@ def main():
                         help="Name of model if model should be saved at each epoch.")
     parser.add_argument("-e", "--epochs", type=int, default=2,
                         help="Number of epochs to train.")
+    parser.add_argument("-m", "--mask", action="store_true",
+                        default=False, help="Use mask.")
 
     args = parser.parse_args()
-    live_viz, load_path, model_name, num_epochs = args.visualize, args.load, args.save, args.epochs
+    live_viz, load_path, model_name = args.visualize, args.load, args.save
+    num_epochs, use_mask = args.epochs, args.mask
 
     if live_viz:
         plt.ion()
@@ -35,7 +37,8 @@ def main():
     model = Speed_Classify_Model()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
-    # mask = cv2.imread("./data/mask.png", 0)
+    if use_mask:
+        mask = cv2.imread("./data/mask.png", 0)
 
     if load_path != "":
         model.load_state_dict(torch.load(load_path, map_location='cpu'))
@@ -61,7 +64,9 @@ def main():
 
         for count, i in enumerate(rand_indices[0:epoch_size]):
             img = cv2.imread("./data/better_train_frames/" + str(i) + ".jpg")
-            # img = cv2.bitwise_and(img, img, mask=mask)
+
+            if use_mask:
+                img = cv2.bitwise_and(img, img, mask=mask)
 
             if i < 20400:
                 speed = ground_truth[i]
@@ -96,34 +101,18 @@ def main():
                 remain_seconds = round(remain_dt_indices * delta_t)
                 est = str(datetime.timedelta(seconds=remain_seconds))
 
-                print_str_1 = "e{0}:{1}/{2} ".format(epoch, count+1, epoch_size)
-                print_str_2 = "True Speed: {0:.2f}   ".format(speed)
-                print_str_3 = "Predicted Speed: {0:.2f}   ".format(prediction)
-                print_str_4 = "Loss: {0:.2f}   ".format(train_loss)
-                print_str_5 = "est: {0}    ".format(est)
+                status = "e{0}:{1}/{2} ".format(epoch, count+1, epoch_size) \
+                    + "True Speed: {0:.2f}   ".format(speed) \
+                    + "Predicted Speed: {0:.2f}   ".format(prediction) \
+                    + "Loss: {0:.2f}   ".format(train_loss) \
+                    + "est: {0}    ".format(est)
 
                 if count+1 != epoch_size:
-                    print(print_str_1 + print_str_2 + print_str_3 + print_str_4 + print_str_5, end='\r')
+                    print(status, end='\r')
                 else:
-                    print(print_str_1 + print_str_2 + print_str_3 + print_str_4 + print_str_5)
+                    print(status)
 
                 refresh_time = time.time()
-
-        # for i in range(1120, 1601):
-            # img = cv2.imread("./data/better_train_frames/t" + str(i) + ".jpg")
-
-            # speed = 0.0
-            # train_loss, prediction_array = train_model(model, optimizer, img, speed)
-            # running_loss += train_loss
-
-            # possible_speeds = np.arange(90)
-            # prediction = np.average(possible_speeds, weights=prediction_array)
-
-            # if i != 1600:
-                # print("Special case prediction: " + str(prediction), end='\r')
-            # else:
-                # print("Special case prediction: " + str(prediction))
-        
 
         print("===== Epoch {0}\tTotal Loss: {1:.6f} =====".format(epoch, running_loss))
 

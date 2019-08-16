@@ -1,6 +1,10 @@
+import sys
 import cv2
+import numpy as np
 
 def main():
+    """ Main routine for writing optical flow frames. """
+
     vidcap = cv2.VideoCapture('./data/test.mp4')
     success, frame1 = vidcap.read()
     count = 1
@@ -14,6 +18,7 @@ def main():
         count += 1
 
 def get_next_frame(cap, prev_frame, clip):
+    """ Gets next frame from video and calculates optical flow. """
     success, cur = cap.read()
     if not success:
         sys.exit()
@@ -27,7 +32,6 @@ def get_next_frame(cap, prev_frame, clip):
     mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
 
     hsv_flow[..., 0] = ang*180/np.pi/2
-    # hsv_flow[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
     mag_clips = mag > clip
     mag[mag_clips] = clip
     mag = mag * (255. / clip)

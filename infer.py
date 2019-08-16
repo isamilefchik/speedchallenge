@@ -1,5 +1,4 @@
 #!/usr/local/bin/python3
-
 import cv2
 import numpy as np
 import torch
@@ -13,15 +12,24 @@ from model import Speed_Classify_Model, train_model
 from load_data import parse_speeds, get_next_frame
 
 def main():
+    """ Main routine. """
+
     parser = argparse.ArgumentParser(description="Speedchallenge inference")
-    parser.add_argument("-i", "--input", type=str, default="train", help="Which dataset (\"train\" or \"test\").")
-    parser.add_argument("-v", "--visualize", action="store_true", default=False, help="Do live visualization.")
+    parser.add_argument("-i", "--input", type=str, default="train",
+                        help="Which dataset (\"train\" or \"test\").")
+    parser.add_argument("-m", "--mask", action="store_true", default=True,
+                        help="Use mask.")
+    parser.add_argument("-v", "--visualize", action="store_true",
+                        default=False, help="Do live visualization.")
     parser.add_argument("-l", "--load", type=str, default="", help="Path to model.")
-    parser.add_argument("-o", "--output", type=str, default="model_output.txt", help="Path to text file to output results.")
-    parser.add_argument("-s", "--simple", action="store_true", default=False, help="Do a simple print (pure m/s measurements).")
+    parser.add_argument("-o", "--output", type=str, default="model_output.txt",
+                        help="Path to text file to output results.")
+    parser.add_argument("-s", "--simple", action="store_true", default=False,
+                        help="Do a simple print (pure m/s measurements).")
 
     args = parser.parse_args()
-    input_set, live_viz, load_path, save_path, simple = args.input, args.visualize, args.load, args.output, args.simple
+    input_set, live_viz, load_path = args.input, args.visualize, args.load
+    save_path, simple, use_mask = args.output, args.simple, args.mask
 
     assert input_set == "train" or input_set == "test", "Invalid input argument."
     assert path.exists(load_path), "Model does not exists."
@@ -34,7 +42,8 @@ def main():
     model = Speed_Classify_Model()
     model.load_state_dict(torch.load(load_path, map_location='cpu'))
 
-    # mask = cv2.imread("./data/mask.png", 0)
+    if use_mask:
+        mask = cv2.imread("./data/mask.png", 0)
 
     model.eval()
 
@@ -60,7 +69,9 @@ def main():
                 break
 
         flow_img = cv2.imread("./data/better_" + input_set + "_frames/" + str(i) + ".jpg")
-        # flow_img = cv2.bitwise_and(flow_img, flow_img, mask=mask) 
+
+        if use_mask:
+            flow_img = cv2.bitwise_and(flow_img, flow_img, mask=mask) 
 
         transform = torchvision.transforms.ToTensor()
         flow_tensor = transform(flow_img)
@@ -102,16 +113,20 @@ def main():
         else:
             if input_set == "train": 
                 for i, item in enumerate(results):
+                    true_speed = ground_truth[i]
+                    print_str = "True: {0:.2f} m/s | {1:.2f} mph ".format(true_speed, true_speed * 2.23694) \
+                        + "--- Model: {2:.2f} m/s | {3:.2f} mph".format(item, item * 2.23694)
                     if i != len(results) - 1:
-                        f.write("True: {0:.2f} m/s | {1:.2f} mph --- Model: {2:.2f} m/s | {3:.2f} mph\n".format(ground_truth[i], ground_truth[i] * 2.23694, item, item * 2.23694))
+                        f.write(print_str + "\n")
                     else:
-                        f.write("True: {0:.2f} m/s | {1:.2f} mph --- Model: {2:.2f} m/s | {3:.2f} mph".format(ground_truth[i], ground_truth[i] * 2.23694, item, item * 2.23694))
+                        f.write(print_str)
             else:
                 for i, item in enumerate(results):
+                    print_str = "Model: {0:.4f} m/s | {1:.2f} mph".format(item, item * 2.23694)
                     if i != len(results) - 1:
-                        f.write("Model: {0:.4f} m/s | {1:.2f} mph\n".format(item, item * 2.23694))
+                        f.write(print_str + "\n")
                     else:
-                        f.write("Model: {0:.4f} m/s | {1:.2f} mph".format(item, item * 2.23694))
+                        f.write(print_str)
 
 if __name__ == "__main__":
     main()

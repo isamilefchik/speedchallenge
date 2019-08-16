@@ -4,39 +4,49 @@ import sys
 import numpy as np
 
 def parse_speeds():
+    """ Reads ground truth speeds as float values. """
     filepath = "./data/train.txt"
     with open(filepath) as file:
         raw = file.read()
     result = list(map(float, raw.split("\n")))
     return result
 
-def get_next_frame(cap, prev_frame):
-    success, cur = cap.read()
-    if not success:
-        sys.exit()
+######################################################
+#
+# Unneeded at current moment:
+# ---------------------------
+#
+# def get_next_frame(cap, prev_frame):
+    # success, cur = cap.read()
+    # if not success:
+        # sys.exit()
         
-    hsv_flow = np.zeros_like(cur)
-    hsv_flow[..., 1] = 255
+    # hsv_flow = np.zeros_like(cur)
+    # hsv_flow[..., 1] = 255
 
-    cur_gray = cv2.cvtColor(cur, cv2.COLOR_BGR2GRAY)
+    # cur_gray = cv2.cvtColor(cur, cv2.COLOR_BGR2GRAY)
 
-    flow = cv2.calcOpticalFlowFarneback(prev_frame, cur_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
-    mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+    # flow = cv2.calcOpticalFlowFarneback(prev_frame, cur_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+    # mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
 
-    hsv_flow[..., 0] = ang*180/np.pi/2
-    # hsv_flow[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
-    scale_cap = 80.
-    mag_clips = mag > scale_cap
-    mag[mag_clips] = scale_cap
-    mag = mag * (255. / scale_cap)
-    hsv_flow[..., 2] = mag
+    # hsv_flow[..., 0] = ang*180/np.pi/2
+    # scale_cap = 80.
+    # mag_clips = mag > scale_cap
+    # mag[mag_clips] = scale_cap
+    # mag = mag * (255. / scale_cap)
+    # hsv_flow[..., 2] = mag
 
-    rgb_flow = cv2.cvtColor(hsv_flow, cv2.COLOR_HSV2BGR)
+    # rgb_flow = cv2.cvtColor(hsv_flow, cv2.COLOR_HSV2BGR)
     
-    return rgb_flow, cur_gray
+    # return rgb_flow, cur_gray
 
 
 def plot_mag_distribution():
+    """ This function helped me develop a sense of the distribution of
+    magnitudes of the optical flow calculations. I used this information
+    to normalize across the entire training dataset.
+    """
+
     cap = cv2.VideoCapture("./data/train.mp4")
 
     success, prev_frame = cap.read()
@@ -57,11 +67,6 @@ def plot_mag_distribution():
         flow = cv2.calcOpticalFlowFarneback(prev_frame, cur_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
         mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
 
-        # hsv_flow[..., 0] = ang*180/np.pi/2
-        # hsv_flow[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
-
-        # rgb_flow = cv2.cvtColor(hsv_flow, cv2.COLOR_HSV2BGR)
-    
         mags.append(int(np.max(mag))) 
 
         print("{0} mags read        ".format(count), end="\r")

@@ -4,6 +4,13 @@ import argparse
 from datetime import timedelta
 
 def main():
+    """Main routine.
+
+    This function allows for an .srt file to be created from the model prediction
+    text file. The predictions can then be viewed in sync with the dashcam footage
+    by setting the .srt as the subtitle file of the video.
+    """
+
     parser = argparse.ArgumentParser(description="Subtitle Renderer")
     parser.add_argument("-i", "--input", type=str, default="", help="Path to speed predictions text.")
     parser.add_argument("-o", "--output", type=str, default="", help="Output file name.")
