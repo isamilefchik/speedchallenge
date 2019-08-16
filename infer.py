@@ -9,12 +9,12 @@ import argparse
 from os import path
 from os import listdir 
 from model import Speed_Classify_Model, train_model
-from load_data import parse_speeds, get_next_frame
+from load_data import parse_speeds 
 
 def main():
     """ Main routine. """
 
-    parser = argparse.ArgumentParser(description="Speedchallenge inference")
+    parser = argparse.ArgumentParser(description="Speedchallenge Inference")
     parser.add_argument("-i", "--input", type=str, default="train",
                         help="Which dataset (\"train\" or \"test\").")
     parser.add_argument("-m", "--mask", action="store_true", default=True,
