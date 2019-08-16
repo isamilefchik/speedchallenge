@@ -8,3 +8,5 @@ __pycache__/
 ./model_saves/*
 test_set_predictions.txt
 predictions.txt
+./misc/*
+
