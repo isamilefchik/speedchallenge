@@ -4,6 +4,8 @@ import torchvision
 import torch
 
 class Speed_Classify_Model(nn.Module):
+    """ Largely based off of LeNet. """
+
     def __init__(self):
         super(Speed_Classify_Model, self).__init__()
         self.conv1 = nn.Conv2d(3,32,(5,5), stride=2)
@@ -34,6 +36,8 @@ class Speed_Classify_Model(nn.Module):
         return out
 
 def train_model(model, optimizer, frame, target):
+    """ Model training routine. """
+
     model.train()
     loss = nn.BCELoss()
     transform = torchvision.transforms.ToTensor()
@@ -51,12 +55,10 @@ def train_model(model, optimizer, frame, target):
     return train_loss.sum().item(), result.detach().numpy()
 
 def make_gauss_target(target, n, sig):
+    """ Makes normal distribution across classes according to ground truth speed. """
+
     gauss_target = np.zeros(n)
     for i in range(n):
         gauss_target[i] = np.exp(-np.power(i - target, 2.) / (2 * np.power(sig, 2.)))
     return torch.tensor(gauss_target, dtype=torch.float)
-
-
-
-
 

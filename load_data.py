@@ -82,5 +82,3 @@ def plot_mag_distribution():
 
 # plot_mag_distribution()
 
-
-
