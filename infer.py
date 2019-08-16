@@ -34,7 +34,7 @@ def main():
     model = Speed_Classify_Model()
     model.load_state_dict(torch.load(load_path, map_location='cpu'))
 
-    mask = cv2.imread("./data/mask.png", 0)
+    # mask = cv2.imread("./data/mask.png", 0)
 
     model.eval()
 
@@ -46,8 +46,9 @@ def main():
 
     file_nums = []
     for cur_file in listdir("./data/better_" + input_set + "_frames/"):
-        if len(cur_file.split(".")) == 2 and cur_file.split(".")[1] == "jpg":
-            file_nums.append(int(cur_file.split(".")[0]))
+        if cur_file[0] != "t":
+            if len(cur_file.split(".")) == 2 and cur_file.split(".")[1] == "jpg":
+                file_nums.append(int(cur_file.split(".")[0]))
     num_frames = max(file_nums)
         
     for i in range(1, num_frames+1):
@@ -59,7 +60,7 @@ def main():
                 break
 
         flow_img = cv2.imread("./data/better_" + input_set + "_frames/" + str(i) + ".jpg")
-        flow_img = cv2.bitwise_and(flow_img, flow_img, mask=mask) 
+        # flow_img = cv2.bitwise_and(flow_img, flow_img, mask=mask) 
 
         transform = torchvision.transforms.ToTensor()
         flow_tensor = transform(flow_img)
