@@ -4,7 +4,7 @@
 *.jpg
 __pycache__/
 ./inference_txts/
-./inference_subtitles/
+./inference_subs/
 ./model_saves/
 test_set_predictions.txt
 predictions.txt
