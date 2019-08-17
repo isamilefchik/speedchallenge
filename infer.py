@@ -17,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser(description="Speedchallenge Inference")
     parser.add_argument("-i", "--input", type=str, default="train",
                         help="Which dataset (\"train\" or \"test\").")
-    parser.add_argument("-m", "--mask", action="store_true", default=True,
+    parser.add_argument("-m", "--mask", action="store_true", default=False,
                         help="Use mask.")
     parser.add_argument("-v", "--visualize", action="store_true",
                         default=False, help="Do live visualization.")
